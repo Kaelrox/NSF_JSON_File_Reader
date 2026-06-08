@@ -1,0 +1,14 @@
+﻿SET FOREIGN_KEY_CHECKS = 0;
+truncate award;
+truncate award_fundingsource;
+truncate award_person;
+truncate award_programelement;
+truncate award_programreference;
+truncate award_institution;
+truncate financialobligationyear;
+truncate institution;
+truncate person;
+truncate primaryprogramfundingsource;
+truncate programelement;
+truncate programreference;
+SET FOREIGN_KEY_CHECKS = 1;

@@ -1,0 +1,14 @@
+SET FOREIGN_KEY_CHECKS = 0;
+drop table if exists award;
+drop table if exists award_fundingsource;
+drop table if exists award_person;
+drop table if exists award_programelement;
+drop table if exists award_programreference;
+drop table if exists award_institution;
+drop table if exists financialobligationyear;
+drop table if exists institution;
+drop table if exists person;
+drop table if exists primaryprogramfundingsource;
+drop table if exists programelement;
+drop table if exists programreference;
+SET FOREIGN_KEY_CHECKS = 1;
