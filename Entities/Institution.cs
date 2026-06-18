@@ -2,44 +2,47 @@
 namespace NSF_JSON_Reader.Entities
 {
     using System.ComponentModel.DataAnnotations;
-
+    /*Note: The NSF Schema  has proven to be more  aspirational rather than authoritative.
+        This means many of the fields  described as required in the schema often come
+        up as null in the actual json. This  causes issues with EF retrieval especially.
+        As a stop gap measure many fields are nullable strings*/
     public class Institution
     {
         [Key]
         public int InstitutionId { get; set; }
 
         [MaxLength(200)]
-        public string InstitutionName { get; set; }
+        public string? InstitutionName { get; set; }
 
         [MaxLength(200)]
-        public string StreetAddress { get; set; }
+        public string? StreetAddress { get; set; }
 
         [MaxLength(200)]
-        public string StreetAddress2 { get; set; }
+        public string? StreetAddress2 { get; set; }
 
         [MaxLength(100)]
-        public string CityName { get; set; }
+        public string? CityName { get; set; }
 
         [MaxLength(10)]
-        public string StateCode { get; set; }
+        public string? StateCode { get; set; }
 
         [MaxLength(100)]
-        public string StateName { get; set; }
+        public string? StateName { get; set; }
 
         [MaxLength(20)]
-        public string PhoneNum { get; set; }
+        public string? PhoneNum { get; set; }
 
         [MaxLength(20)]
-        public string ZipCode { get; set; }
+        public string? ZipCode { get; set; }
 
         [MaxLength(100)]
-        public string CountryName { get; set; }
+        public string? CountryName { get; set; }
 
         [MaxLength(20)]
-        public string CongressionalDistrictCode { get; set; }
+        public string? CongressionalDistrictCode { get; set; }
 
         [MaxLength(20)]
-        public string StateCongressionalDistCode { get; set; }
+        public string? StateCongressionalDistCode { get; set; }
 
         [MaxLength(100)]
         public string? PerformanceCountryName { get; set; }
@@ -49,10 +52,10 @@ namespace NSF_JSON_Reader.Entities
 
         [MaxLength(100)]
         [Required]
-        public string UeiNumber { get; set; }
+        public string? UeiNumber { get; set; }
 
         [MaxLength(100)]
-        public string ParentUeiNumber { get; set; }
+        public string? ParentUeiNumber { get; set; }
 
         public virtual ICollection<AwardInstitution> AwardInstitutions { get; set; } = new List<AwardInstitution>();
     }

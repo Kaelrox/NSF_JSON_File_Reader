@@ -15,7 +15,7 @@ namespace NSF_JSON_Reader
     public partial class FrmHome : Form
     {
         String directoryPath = "";
-        bool isDBStringLoaded = false;
+       
 
         public FrmHome()
         {
@@ -77,6 +77,31 @@ namespace NSF_JSON_Reader
                                             ";Password=" + txtPassword.Text + ";";
                 var context = new ApplicationDbContext(nsfDBConnectString);
 
+                /*Ok, the  goal here is to have a mechaism to check against the db for existing awards.
+                 This collection of ids  will save trips to the db and by calling only the ward ids we
+                save memory as opposed to fetching the whole entity. This will come in handy once we start
+                iterating through files and folders*/
+                var existingAwardIds = context.Awards.Select(a => a.NSFAwdId).ToHashSet();
+
+                /*pretty much the same thing as above but for institutions but we need to doa little extra work for 
+                 the Pk-FK stuff when attachign awards to existing institutions.*/
+
+                /*var existingInstitutionsDict = context.Institutions
+                     .Where(i => !String.IsNullOrEmpty(i.UeiNumber))
+                    .Select(i => new { i.UeiNumber, i.InstitutionId })
+                        .AsNoTracking()
+                    .ToDictionary(i => i.UeiNumber, i => i.InstitutionId); */
+
+                /* var existingInstitutions = context.Institutions
+                     .Where(i => !string.IsNullOrEmpty(i.UeiNumber)
+                      &&  String.IsNullOrEmpty(i.PerformanceCountryFlag)
+                      && String.IsNullOrEmpty(i.PerformanceCountryName))
+                     .ToDictionary(i => i.UeiNumber, i => i); */
+
+                var pendingInstitutions = new Dictionary<string, Entities.Institution>();
+
+                int batchSize = 100;
+                int batchcount = 0;
                 foreach (string dir in dirs)
                 {
                     DirectoryInfo myDirectory = new DirectoryInfo(dir);
@@ -105,12 +130,12 @@ namespace NSF_JSON_Reader
                         myAward.NSFAwdId = doc.RootElement.GetProperty("awd_id").GetString();
 
 
-                        var existingAward = context.Awards
-                        .FirstOrDefault(a => a.NSFAwdId == myAward.NSFAwdId);
 
-                        if (existingAward != null)
+                        if (existingAwardIds.Contains(myAward.NSFAwdId))
                         {
+                       
                             continue;
+                           
                         }
 
                         myAward.AgencyId = doc.RootElement.GetProperty("agcy_id").GetString();
@@ -141,14 +166,33 @@ namespace NSF_JSON_Reader
 
 
 
-                        //Populate fields for the institution
-                        myAward.Institution = new Entities.Institution();
-                        myAward.Institution.UeiNumber = doc.RootElement.GetProperty("inst").GetProperty("org_uei_num").GetString();
-                        myAward.Institution.ParentUeiNumber = doc.RootElement.GetProperty("inst").GetProperty("org_prnt_uei_num").GetString();
 
-                        //We are using AsNoTracking()  because this is a read only fetch to validate imstitution exsitance.
-                        var existingInstitution = context.Institutions
-                            .FirstOrDefault(i => i.UeiNumber == myAward.Institution.UeiNumber);
+                        string ueiNumber = doc.RootElement.GetProperty("inst").GetProperty("org_uei_num").GetString();
+                        myAward.AwardeeName = doc.RootElement.GetProperty("inst").GetProperty("inst_name").GetString();
+                        myAward.AwardeeStateCode = doc.RootElement.GetProperty("inst").GetProperty("inst_state_code").GetString();
+
+                        /*This optimisation should probably work. The only problem would be if i tried to access any
+                         of the institution properties of myAward because it will only be loaded once a savechanges is called.
+                        However, this  never happens, in the case that it does exist will will just set the FK because we are
+                        primarily concerned with the navigation property. If it does not exist then we are setting all those properties
+                        from JSON  anyway.*/
+
+
+                        Entities.Institution existingInstitution = null;
+
+
+
+
+                        if (pendingInstitutions.TryGetValue(ueiNumber, out var pendingInstitution))
+                        {
+                            existingInstitution = pendingInstitution;
+                        }
+                        else
+                        {
+                           
+                            existingInstitution = context.Institutions
+                                .FirstOrDefault(i => i.UeiNumber == ueiNumber);
+                        }
 
                         if (existingInstitution != null)
                         {
@@ -158,8 +202,13 @@ namespace NSF_JSON_Reader
                         }
                         else
                         {
-                            myAward.AwardeeName = doc.RootElement.GetProperty("inst").GetProperty("inst_name").GetString();
-                            myAward.AwardeeStateCode = doc.RootElement.GetProperty("inst").GetProperty("inst_state_code").GetString();
+
+                            //Populate fields for the institution
+                            myAward.Institution = new Entities.Institution();
+                            myAward.Institution.UeiNumber = doc.RootElement.GetProperty("inst").GetProperty("org_uei_num").GetString();
+                            myAward.Institution.ParentUeiNumber = doc.RootElement.GetProperty("inst").GetProperty("org_prnt_uei_num").GetString();
+
+
                             myAward.Institution.InstitutionName = doc.RootElement.GetProperty("inst").GetProperty("inst_name").GetString();
                             myAward.Institution.StreetAddress = doc.RootElement.GetProperty("inst").GetProperty("inst_street_address").GetString();
                             myAward.Institution.StreetAddress2 = doc.RootElement.GetProperty("inst").GetProperty("inst_name").GetString();
@@ -174,6 +223,7 @@ namespace NSF_JSON_Reader
                             myAward.Institution.CountryName = doc.RootElement.GetProperty("inst").GetProperty("inst_country_name").GetString();
                             myAward.Institution.PerformanceCountryFlag = null;
                             myAward.Institution.PerformanceCountryName = null;
+                            pendingInstitutions.Add(ueiNumber, myAward.Institution);
                         }
 
 
@@ -364,16 +414,26 @@ namespace NSF_JSON_Reader
 
                         });
 
+                        batchcount++;
 
 
-                        context.SaveChanges();
+                        //context.SaveChanges();
+
+                        if (batchcount == batchSize)
+                        {
+                            context.SaveChanges();
+                            context.Dispose();
+                            context = new ApplicationDbContext(nsfDBConnectString);
+                            batchcount = 0;
+                            pendingInstitutions.Clear();
+                        }
 
 
                         folderProjects.Add(myAward);
 
                     }
 
-
+                    context.SaveChanges();
 
 
 

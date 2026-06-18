@@ -8,7 +8,7 @@ namespace NSF_JSON_Reader.Entities
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     /*Note: The NSF Schema  has proven to be more  aspirational rather than authoritative.
-            This means many of the field  described as required in the schema often come
+            This means many of the fields  described as required in the schema often come
             up as null in the actual json. This  causes issues with EF retrieval especially.
             As a stop gap measure many fields are nullable strings*/
     public class Award
