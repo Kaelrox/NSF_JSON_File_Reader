@@ -117,4 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="lblBatchBox.Text" xml:space="preserve">
+    <value>Select how large you would like  the batches of inserted awards to be. 
+0 will insert records 1 by 1. Very good for breaking down possible 
+problematic or malformed JSON files, very bad for speed. 
+Larger batches say like 100, will insert 100 at a time. 
+This is great for speed because it saves database trips but bad if you 
+have a bad file somewhere in the batch.
+
+Recommended starting batch size : 0 or 100</value>
+  </data>
 </root>

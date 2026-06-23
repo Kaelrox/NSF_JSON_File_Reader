@@ -30,6 +30,7 @@ namespace NSF_JSON_Reader
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmHome));
             lblPath = new Label();
             txtPath = new TextBox();
             btnLoad = new Button();
@@ -47,6 +48,9 @@ namespace NSF_JSON_Reader
             lblPassword = new Label();
             txtPassword = new TextBox();
             btnDBTest = new Button();
+            nmbBox1 = new NumericUpDown();
+            lblBatchBox = new Label();
+            ((System.ComponentModel.ISupportInitialize)nmbBox1).BeginInit();
             SuspendLayout();
             // 
             // lblPath
@@ -194,11 +198,30 @@ namespace NSF_JSON_Reader
             btnDBTest.UseVisualStyleBackColor = true;
             btnDBTest.Click += btnDBTest_Click;
             // 
+            // nmbBox1
+            // 
+            nmbBox1.Location = new Point(22, 504);
+            nmbBox1.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+            nmbBox1.Name = "nmbBox1";
+            nmbBox1.Size = new Size(180, 31);
+            nmbBox1.TabIndex = 17;
+            // 
+            // lblBatchBox
+            // 
+            lblBatchBox.AutoSize = true;
+            lblBatchBox.Location = new Point(12, 265);
+            lblBatchBox.Name = "lblBatchBox";
+            lblBatchBox.Size = new Size(569, 200);
+            lblBatchBox.TabIndex = 18;
+            lblBatchBox.Text = resources.GetString("lblBatchBox.Text");
+            // 
             // FrmHome
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1447, 680);
+            Controls.Add(lblBatchBox);
+            Controls.Add(nmbBox1);
             Controls.Add(btnDBTest);
             Controls.Add(txtPassword);
             Controls.Add(lblPassword);
@@ -219,6 +242,7 @@ namespace NSF_JSON_Reader
             Name = "FrmHome";
             Text = "NSF JSON Reader";
             Load += FrmHome_Load;
+            ((System.ComponentModel.ISupportInitialize)nmbBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -246,5 +270,7 @@ namespace NSF_JSON_Reader
         private Label lblPassword;
         private TextBox txtPassword;
         private Button btnDBTest;
+        private NumericUpDown nmbBox1;
+        private Label lblBatchBox;
     }
 }

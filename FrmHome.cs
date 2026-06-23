@@ -33,7 +33,7 @@ namespace NSF_JSON_Reader
         {
             int numFolders;
             int numFiles = 0;
-
+            string currentFileBeingProcessed = "";
 
 
             try
@@ -100,7 +100,7 @@ namespace NSF_JSON_Reader
 
                 var pendingInstitutions = new Dictionary<string, Entities.Institution>();
 
-                int batchSize = 100;
+                int batchSize =  (int)nmbBox1.Value;
                 int batchcount = 0;
                 foreach (string dir in dirs)
                 {
@@ -109,6 +109,7 @@ namespace NSF_JSON_Reader
 
                     foreach (FileInfo myFile in myDirectory.GetFiles("*.json"))
                     {
+                        currentFileBeingProcessed = myFile.FullName;
                         string jsonString = File.ReadAllText(myFile.FullName);
                         /* The reason I am going the ecruciating  get property route is because my data models  are not a 1:1 
                           match with the json. For instance, instead of having primary investigator and program manager, 
@@ -181,18 +182,24 @@ namespace NSF_JSON_Reader
                         Entities.Institution existingInstitution = null;
 
 
+                        if(!String.IsNullOrEmpty(ueiNumber))
+                        {
+                            if (pendingInstitutions.TryGetValue(ueiNumber, out var pendingInstitution))
+                            {
+                                existingInstitution = pendingInstitution;
+                            }
+                            else
+                            {
+
+                                existingInstitution = context.Institutions
+                                    .FirstOrDefault(i => i.UeiNumber == ueiNumber);
+                            }
+
+                        }
+                        
 
 
-                        if (pendingInstitutions.TryGetValue(ueiNumber, out var pendingInstitution))
-                        {
-                            existingInstitution = pendingInstitution;
-                        }
-                        else
-                        {
-                           
-                            existingInstitution = context.Institutions
-                                .FirstOrDefault(i => i.UeiNumber == ueiNumber);
-                        }
+                    
 
                         if (existingInstitution != null)
                         {
@@ -208,6 +215,10 @@ namespace NSF_JSON_Reader
                             myAward.Institution.UeiNumber = doc.RootElement.GetProperty("inst").GetProperty("org_uei_num").GetString();
                             myAward.Institution.ParentUeiNumber = doc.RootElement.GetProperty("inst").GetProperty("org_prnt_uei_num").GetString();
 
+                            if (myAward.Institution.UeiNumber.Equals(""))
+                            {
+                                myAward.Institution.UeiNumber = null;
+                            }
 
                             myAward.Institution.InstitutionName = doc.RootElement.GetProperty("inst").GetProperty("inst_name").GetString();
                             myAward.Institution.StreetAddress = doc.RootElement.GetProperty("inst").GetProperty("inst_street_address").GetString();
@@ -223,7 +234,11 @@ namespace NSF_JSON_Reader
                             myAward.Institution.CountryName = doc.RootElement.GetProperty("inst").GetProperty("inst_country_name").GetString();
                             myAward.Institution.PerformanceCountryFlag = null;
                             myAward.Institution.PerformanceCountryName = null;
-                            pendingInstitutions.Add(ueiNumber, myAward.Institution);
+                            if(!String.IsNullOrEmpty(ueiNumber))
+                            {
+                                pendingInstitutions.Add(ueiNumber, myAward.Institution);
+                            }
+                            
                         }
 
 
@@ -417,9 +432,9 @@ namespace NSF_JSON_Reader
                         batchcount++;
 
 
-                        //context.SaveChanges();
+                      //  context.SaveChanges();
 
-                        if (batchcount == batchSize)
+                        if (batchcount >= batchSize)
                         {
                             context.SaveChanges();
                             context.Dispose();
@@ -428,6 +443,35 @@ namespace NSF_JSON_Reader
                             pendingInstitutions.Clear();
                         }
 
+
+
+                        //For  Logging
+
+                        //try
+                        //{
+                        //    context.SaveChanges();
+                        //}
+                        //catch (DbUpdateException ex)
+                        //{
+                        //    string errorDetails =
+                        //        $"Outer: {ex.Message}\n" +
+                        //        $"Inner 1: {ex.InnerException?.Message}\n" +
+                        //        $"Inner 2: {ex.InnerException?.InnerException?.Message}\n\n";
+
+                        //    foreach (var entry in ex.Entries)
+                        //    {
+                        //        errorDetails += $"Problem entity: {entry.Entity.GetType().Name}\n";
+                        //        foreach (var prop in entry.Properties)
+                        //        {
+                        //            errorDetails += $"  {prop.Metadata.Name}: {prop.CurrentValue}\n";
+                        //        }
+                        //        errorDetails += "---\n";
+                        //    }
+
+                        //    File.AppendAllText(@"D:\MyLogs\error_log.txt", errorDetails);
+                        //    MessageBox.Show("Save failed - check C:\\MyLogs\\error_log.txt for details");
+                        //    throw;
+                        //}
 
                         folderProjects.Add(myAward);
 
@@ -439,6 +483,7 @@ namespace NSF_JSON_Reader
 
                     numFiles += folderProjects.Count;
                     txtFiles.Text = numFiles.ToString();
+                    MessageBox.Show("File loading complete", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 }
 
@@ -448,7 +493,10 @@ namespace NSF_JSON_Reader
 
             catch (Exception ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show("Error: " + ex.Message +"\n" +"\n"
+                    +"Error happed while processing file " + currentFileBeingProcessed  + "\n"
+                    +"The culprit file name is only accurate if you chose 0 as a batch size or else it" +
+                    "could be any file in the batch");
 
             }
         }
