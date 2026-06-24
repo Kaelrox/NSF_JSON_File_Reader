@@ -77,7 +77,7 @@ namespace NSF_JSON_Reader
                                             ";Password=" + txtPassword.Text + ";";
                 var context = new ApplicationDbContext(nsfDBConnectString);
 
-                /*Ok, the  goal here is to have a mechaism to check against the db for existing awards.
+                /*Ok, the  goal here is to have a mechanism to check against the db for existing awards.
                  This collection of ids  will save trips to the db and by calling only the ward ids we
                 save memory as opposed to fetching the whole entity. This will come in handy once we start
                 iterating through files and folders*/
@@ -111,7 +111,7 @@ namespace NSF_JSON_Reader
                     {
                         currentFileBeingProcessed = myFile.FullName;
                         string jsonString = File.ReadAllText(myFile.FullName);
-                        /* The reason I am going the ecruciating  get property route is because my data models  are not a 1:1 
+                        /* The reason I am going the excruciating  get property route is because my data models  are not a 1:1 
                           match with the json. For instance, instead of having primary investigator and program manager, 
                         I use the person model to record both instances of information.
                         The rationale being this will make it easier when constructing tables
