@@ -1,7 +1,9 @@
 This is a basic windows forms app used to read the information on NSF funded projects. One of the ways in which the NSF exposes information is through archived downloadable JSON files. This bare bones windows forms app picks up the files and parses them into a database. The scripts for the corresponding tables are included in the project scripts folder.
 
 ================================================================================================================
+
 Assumptions/Requirements
+
 ================================================================================================================
 
 1) The app assumes you already have an SQL database in place. If not, I reccomend downloading and installing MySQL and MySQLWorkBench
@@ -9,7 +11,9 @@ Assumptions/Requirements
 3) The app will read all json files in the path and one level down in any child folders but not recursively all the way down.
 
 ================================================================================================================
+
 How to use - If you only want the App
+
 ================================================================================================================
 1) Hit green button that  says "code"  in the upper right corner of the repository
 2) Click download zip
