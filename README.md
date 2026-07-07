@@ -22,7 +22,7 @@ How to use - If you only want the App
 <img width="433" height="331" alt="image" src="https://github.com/user-attachments/assets/793292d5-7330-4204-82dc-d496f752a1d1" />
 
 
-3) Unzip the folder, navigate to the folder called "publishedApp"
+3) Unzip the folder, navigate to the folder called "published"
 4) Click on NSF_JSON_Reader.exe and input the details of your database like so:
 
 
