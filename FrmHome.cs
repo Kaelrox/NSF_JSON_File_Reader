@@ -494,7 +494,7 @@ namespace NSF_JSON_Reader
             catch (Exception ex)
             {
                 MessageBox.Show("Error: " + ex.Message +"\n" +"\n"
-                    +"Error happed while processing file " + currentFileBeingProcessed  + "\n"
+                    +"Error happened while processing file " + currentFileBeingProcessed  + "\n"
                     +"The culprit file name is only accurate if you chose 0 as a batch size or else it" +
                     "could be any file in the batch");
 
